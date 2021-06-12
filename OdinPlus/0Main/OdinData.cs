@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
+using HarmonyLib;
 using UnityEngine;
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
 
 namespace OdinPlus
 {
-    public class OdinData : MonoBehaviour
+	public class OdinData : MonoBehaviour
 	{
 		#region Var
 		#region serialization
@@ -161,13 +165,13 @@ namespace OdinPlus
 				//add Backup
 			}
 			FileStream fileStream = new FileStream(@file, FileMode.Create, FileAccess.Write);
+			string dat = JsonSerializer.Serialize(Data);
+			BinaryWriter binaryWriter= new BinaryWriter(fileStream);
+			binaryWriter.Write(dat);
+			binaryWriter.Flush();
+			binaryWriter.Close();
 			//BinaryFormatter formatter = new BinaryFormatter();
 			//formatter.Serialize(fileStream, Data);
-			string dat = JsonConvert.SerializeObject(Data);
-			BinaryWriter binaryWrite = new BinaryWriter(fileStream);
-			binaryWrite.Write(dat);
-			binaryWrite.Flush();
-			binaryWrite.Close();
 			fileStream.Close();
 			#endregion Serialize
 
@@ -196,7 +200,7 @@ namespace OdinPlus
 			//Data = (DataTable)formatter.Deserialize(fileStream);
 			BinaryReader binaryReader = new BinaryReader(fileStream);
 			var str = binaryReader.ReadString();
-			Data = JsonConvert.DeserializeObject<DataTable>(str);
+			Data=JsonSerializer.Deserialize<DataTable>(str);
 			fileStream.Close();
 			#endregion Serial
 
